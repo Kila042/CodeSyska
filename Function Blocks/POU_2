@@ -1,0 +1,44 @@
+FUNCTION_BLOCK POU_2 
+VAR_INPUT
+	time_1 : TIME;
+	reset : BOOL;
+END_VAR
+VAR_OUTPUT
+	counter : INT:=0;
+END_VAR
+VAR
+	TON_1 : TON;
+	TON_2 : TON;
+	state : INT:=10;
+	output_1: BOOL;
+END_VAR
+
+CASE state OF
+	
+	10:
+		 output_1 := FALSE;
+		 TON_2(IN:=TRUE,PT:=time_1);
+		 IF TON_2.Q = TRUE THEN
+			 state := 20;
+		 END_IF
+		 
+	20:
+		 output_1 := TRUE;
+		 TON_1(IN:=TRUE,PT:=time_1);
+		 IF TON_1.Q = TRUE THEN
+			 state := 30;
+		 END_IF
+		 
+	30:
+		 TON_1(IN:=FALSE,PT:=T#0S);
+		 TON_2(IN:=FALSE,PT:=T#0S);
+		 output_1 := FALSE;
+		 state := 40;
+		 counter := counter+1;
+	
+	40:
+		 IF reset = TRUE THEN
+			 counter := 0;
+		 END_IF
+		 state := 10;
+END_CASE
